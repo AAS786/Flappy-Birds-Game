@@ -1,3 +1,37 @@
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Load images
+const backgroundImg = new Image();
+const birdImg = new Image();
+const topPipeImg = new Image();
+const bottomPipeImg = new Image();
+const heartImg = new Image();
+
+backgroundImg.src = 'https://i.postimg.cc/V6zc0HCL/backg.jpg';
+birdImg.src = 'https://i.postimg.cc/3Ns1dNSM/flappy-bird-removebg-preview.png';
+topPipeImg.src = 'https://i.postimg.cc/5NCc2F7t/flappy-bird-pipe-png-3-removebg-preview1.png';
+bottomPipeImg.src = 'https://i.postimg.cc/8cfRLG9h/flappy-bird-pipe-png-3-removebg-preview.png';
+heartImg.src = 'https://i.postimg.cc/7LbTH4BJ/heart.png'; // Add heart image for lives
+
+// Game settings
+const birdSize = 40;
+const birdGravity = 0.6;
+const birdLift = -12;
+const pipeWidth = 60;
+const pipeGap = 200;
+const pipeSpeed = 3;
+const initialLives = 3;
+
+// Game state
+let birdY = canvas.height / 2 - birdSize / 2;
+let birdVelocity = 0;
+let pipes = [];
+let score = 0;
+let bestScore = 0; // Track best score
+let lives = initialLives;
+let gameInterval;
+
 // Initialize game
 function initGame() {
     birdY = canvas.height / 2 - birdSize / 2;
@@ -5,9 +39,7 @@ function initGame() {
     pipes = [];
     score = 0;
     lives = initialLives;
-    document.getElementById('scoreBox').textContent = `Score: ${score}`;
-    document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
-    document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
+    updateScoreAndLives();
     if (gameInterval) clearInterval(gameInterval);
     gameInterval = setInterval(updateGame, 20);
     document.addEventListener('keydown', handleKeydown);
@@ -46,14 +78,14 @@ function updateGame() {
         if (pipe.x < 50 + birdSize && pipe.x + pipeWidth > 50 &&
             (birdY < pipe.topHeight || birdY + birdSize > canvas.height - pipe.bottomHeight)) {
             loseLife();
-            return; // Ensure we exit the function after losing a life
+            return;
         }
 
         // Remove off-screen pipes
         if (pipe.x + pipeWidth < 0) {
             pipes.splice(i, 1);
             score++;
-            document.getElementById('scoreBox').textContent = `Score: ${score}`;
+            updateScoreAndLives();
         }
     }
 
@@ -63,75 +95,59 @@ function updateGame() {
     }
 }
 
+// Generate new pipes
+function generatePipe() {
+    const topHeight = Math.random() * (canvas.height - pipeGap - 50) + 20;
+    const bottomHeight = canvas.height - topHeight - pipeGap;
+    pipes.push({ x: canvas.width, topHeight, bottomHeight });
+}
+
+// Handle keydown event
+function handleKeydown(e) {
+    if (e.code === 'Space') {
+        birdVelocity = birdLift;
+    }
+}
+
 // Lose a life
 function loseLife() {
     lives--;
-    document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
     if (lives <= 0) {
         gameOver();
     } else {
-        // Reset bird position and velocity
-        birdY = canvas.height / 2 - birdSize / 2;
-        birdVelocity = 0;
-        pipes = [];
-        generatePipe();
+        updateScoreAndLives();
     }
 }
 
-// End the game
+// Update score and lives display
+function updateScoreAndLives() {
+    document.getElementById('scoreBox').textContent = `Score: ${score}`;
+    document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
+    document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
+}
+
+// End game
 function gameOver() {
     clearInterval(gameInterval);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
-    ctx.drawImage(birdImg, 50, birdY, birdSize, birdSize);
-
-    // Update best score
+    gameInterval = null;
     if (score > bestScore) {
         bestScore = score;
         document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
-        // Save best score to localStorage
-        localStorage.setItem('bestScore', bestScore);
     }
-
-    // Show game over message and buttons
-    const gameOverBox = document.createElement('div');
-    gameOverBox.className = 'game-over-box';
-    gameOverBox.innerHTML = `
-        Game Over<br>
-        Final Score: ${score}<br>
-        <button onclick="restartGame()">Restart</button>
-        <button onclick="newGame()">New Game</button>
-    `;
-    document.body.appendChild(gameOverBox);
-
     document.removeEventListener('keydown', handleKeydown);
-}
-
-// Restart the game
-function restartGame() {
-    document.querySelector('.game-over-box').remove();
-    initGame();
-}
-
-// Start a new game
-function newGame() {
-    document.querySelector('.game-over-box').remove();
+    document.getElementById('gameCanvas').style.display = 'none';
+    document.getElementById('scoreBox').style.display = 'none';
+    document.getElementById('bestScoreBox').style.display = 'none';
+    document.getElementById('livesBox').style.display = 'none';
     document.getElementById('startBox').style.display = 'block';
 }
 
 // Start game
 function startGame() {
+    document.getElementById('gameCanvas').style.display = 'block';
+    document.getElementById('scoreBox').style.display = 'block';
+    document.getElementById('bestScoreBox').style.display = 'block';
+    document.getElementById('livesBox').style.display = 'block';
     document.getElementById('startBox').style.display = 'none';
     initGame();
 }
-
-// Show start button when page loads
-function showStartButton() {
-    document.getElementById('startBox').style.display = 'block';
-    // Retrieve best score from localStorage
-    bestScore = localStorage.getItem('bestScore') || 0;
-    document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
-}
-
-// Show start button when page loads
-showStartButton();
