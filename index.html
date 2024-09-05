@@ -4,17 +4,320 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flappy Bird</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #70c5ce;
+            background-image: url('https://i.postimg.cc/V6zc0HCL/backg.jpg'); /* Background image */
+            background-size: cover;
+            background-position: center;
+        }
+
+        canvas {
+            border: 2px solid #000;
+        }
+
+        .score-box {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .lives-box {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .game-over-box, .restart-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .game-over-box button, .restart-box button {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            background-color: #f7f7f7;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        .game-over-box button:hover, .restart-box button:hover {
+            background-color: #ddd;
+        }
+
+        .start-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .start-box button {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            background-color: #f7f7f7;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .start-box button:hover {
+            background-color: #ddd;
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: bold;
+            color: #ffcc00;
+            font-family: 'Arial', sans-serif; /* Change font family */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px; /* Space between title and bird image */
+        }
+
+        .bird-image {
+            width: 100px; /* Adjust size as needed */
+            height: auto;
+            margin-bottom: 40px; /* Space between bird image and canvas */
+        }
+    </style>
 </head>
 <body>
     <div class="title">Flappy Bird</div>
     <img src="https://i.postimg.cc/3Ns1dNSM/flappy-bird-removebg-preview.png" alt="Flappy Bird" class="bird-image">
     <canvas id="gameCanvas" width="640" height="480"></canvas>
     <div id="scoreBox" class="score-box">Score: 0</div>
+    <div id="bestScoreBox" class="score-box" style="top: 50px;">Best Score: 0</div> <!-- Best Score Box -->
     <div id="livesBox" class="lives-box">Lives: ❤️❤️❤️</div>
     <div id="startBox" class="start-box">
         <button class="start-button" onclick="startGame()">Start Game</button>
     </div>
-    <script src="script.js"></script>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Load images
+        const backgroundImg = new Image();
+        const birdImg = new Image();
+        const topPipeImg = new Image();
+        const bottomPipeImg = new Image();
+        const heartImg = new Image();
+
+        backgroundImg.src = 'https://i.postimg.cc/V6zc0HCL/backg.jpg';
+        birdImg.src = 'https://i.postimg.cc/3Ns1dNSM/flappy-bird-removebg-preview.png';
+        topPipeImg.src = 'https://i.postimg.cc/5NCc2F7t/flappy-bird-pipe-png-3-removebg-preview1.png';
+        bottomPipeImg.src = 'https://i.postimg.cc/8cfRLG9h/flappy-bird-pipe-png-3-removebg-preview.png';
+        heartImg.src = 'https://i.postimg.cc/7LbTH4BJ/heart.png'; // Add heart image for lives
+
+        // Game settings
+        const birdSize = 40;
+        const birdGravity = 0.6;
+        const birdLift = -12;
+        const pipeWidth = 60;
+        const pipeGap = 200;
+        const pipeSpeed = 3;
+        const initialLives = 3;
+
+        // Game state
+        let birdY = canvas.height / 2 - birdSize / 2;
+        let birdVelocity = 0;
+        let pipes = [];
+        let score = 0;
+        let bestScore = 0; // Track best score
+        let lives = initialLives;
+        let gameInterval;
+
+        // Initialize game
+        function initGame() {
+            birdY = canvas.height / 2 - birdSize / 2;
+            birdVelocity = 0;
+            pipes = [];
+            score = 0;
+            lives = initialLives;
+            document.getElementById('scoreBox').textContent = `Score: ${score}`;
+            document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
+            document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(updateGame, 20);
+            document.addEventListener('keydown', handleKeydown);
+            generatePipe();
+        }
+
+        // Update game state
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw background
+            ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+
+            // Update bird position
+            birdVelocity += birdGravity;
+            birdY += birdVelocity;
+
+            // Check for canvas bounds collision
+            if (birdY < 0 || birdY + birdSize > canvas.height) {
+                gameOver();
+                return;
+            }
+
+            // Draw bird
+            ctx.drawImage(birdImg, 50, birdY, birdSize, birdSize);
+
+            // Update and draw pipes
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                let pipe = pipes[i];
+                pipe.x -= pipeSpeed;
+                // Draw pipes
+                ctx.drawImage(topPipeImg, pipe.x, 0, pipeWidth, pipe.topHeight);
+                ctx.drawImage(bottomPipeImg, pipe.x, canvas.height - pipe.bottomHeight, pipeWidth, pipe.bottomHeight);
+
+                // Check for collisions
+                if (pipe.x < 50 + birdSize && pipe.x + pipeWidth > 50 &&
+                    (birdY < pipe.topHeight || birdY + birdSize > canvas.height - pipe.bottomHeight)) {
+                    loseLife();
+                }
+
+                // Remove off-screen pipes
+                if (pipe.x + pipeWidth < 0) {
+                    pipes.splice(i, 1);
+                    score++;
+                    document.getElementById('scoreBox').textContent = `Score: ${score}`;
+                }
+            }
+
+            // Add new pipes
+            if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 300) {
+                generatePipe();
+            }
+        }
+
+        // Generate new pipes
+        function generatePipe() {
+            const topHeight = Math.random() * (canvas.height - pipeGap - 50) + 20;
+            const bottomHeight = canvas.height - topHeight - pipeGap;
+            pipes.push({ x: canvas.width, topHeight, bottomHeight });
+        }
+
+        // Handle key down events
+        function handleKeydown(e) {
+            if (e.code === 'ArrowUp') {
+                birdVelocity = birdLift;
+            }
+            if (e.code === 'ArrowDown') {
+                birdVelocity = birdGravity;
+            }
+        }
+
+        // Lose a life
+        function loseLife() {
+            lives--;
+            document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
+            if (lives <= 0) {
+                gameOver();
+            } else {
+                // Reset bird position and velocity
+                birdY = canvas.height / 2 - birdSize / 2;
+                birdVelocity = 0;
+                pipes = [];
+                generatePipe();
+            }
+        }
+
+        // End the game
+        function gameOver() {
+            clearInterval(gameInterval);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(birdImg, 50, birdY, birdSize, birdSize);
+
+            // Update best score
+            if (score > bestScore) {
+                bestScore = score;
+                document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
+            }
+
+            // Show game over message and buttons
+            const gameOverBox = document.createElement('div');
+            gameOverBox.className = 'game-over-box';
+            gameOverBox.innerHTML = `
+                Game Over<br>
+                Final Score: ${score}<br>
+                <button onclick="restartGame()">Restart</button>
+                <button onclick="newGame()">New Game</button>
+            `;
+            document.body.appendChild(gameOverBox);
+
+            document.removeEventListener('keydown', handleKeydown);
+        }
+
+        // Restart the game
+        function restartGame() {
+            document.querySelector('.game-over-box').remove();
+            initGame();
+        }
+
+        // Start a new game
+        function newGame() {
+            document.querySelector('.game-over-box').remove();
+            document.getElementById('startBox').style.display = 'block';
+        }
+
+        // Start game
+        function startGame() {
+            document.getElementById('startBox').style.display = 'none';
+            initGame();
+        }
+
+        // Show start button when page loads
+        function showStartButton() {
+            document.getElementById('startBox').style.display = 'block';
+            // Retrieve best score from localStorage
+            bestScore = localStorage.getItem('bestScore') || 0;
+            document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
+        }
+
+        // Show start button when page loads
+        showStartButton();
+    </script>
 </body>
 </html>
