@@ -1,6 +1,3 @@
-/* styles.css */
-
-/* General Styles */
 body {
     margin: 0;
     overflow: hidden;
@@ -9,7 +6,7 @@ body {
     align-items: center;
     justify-content: center;
     background-color: #70c5ce;
-    background-image: url('images/backg.jpg');
+    background-image: url('https://i.postimg.cc/V6zc0HCL/backg.jpg'); /* Background image */
     background-size: cover;
     background-position: center;
 }
@@ -18,8 +15,10 @@ canvas {
     border: 2px solid #000;
 }
 
-.score-box, .lives-box, .game-over-box, .restart-box, .start-box {
+.score-box {
     position: absolute;
+    top: 10px;
+    left: 10px;
     font-size: 24px;
     font-weight: bold;
     color: #000;
@@ -28,26 +27,33 @@ canvas {
     border-radius: 5px;
 }
 
-.score-box {
-    top: 10px;
-    left: 10px;
-}
-
 .lives-box {
+    position: absolute;
     top: 10px;
     right: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 5px 10px;
+    border-radius: 5px;
 }
 
 .game-over-box, .restart-box {
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    background-color: rgba(255, 255, 255, 0.7);
     padding: 20px;
     border-radius: 5px;
 }
 
-.game-over-box button, .restart-box button, .start-box button {
+.game-over-box button, .restart-box button {
     font-size: 18px;
     font-weight: bold;
     color: #000;
@@ -59,30 +65,51 @@ canvas {
     margin: 10px;
 }
 
-.game-over-box button:hover, .restart-box button:hover, .start-box button:hover {
+.game-over-box button:hover, .restart-box button:hover {
     background-color: #ddd;
 }
 
 .start-box {
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
     font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 20px;
+    border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.start-box button {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    background-color: #f7f7f7;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.start-box button:hover {
+    background-color: #ddd;
 }
 
 .title {
     font-size: 48px;
     font-weight: bold;
     color: #ffcc00;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Arial', sans-serif; /* Change font family */
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    margin-bottom: 20px;
+    margin-bottom: 20px; /* Space between title and bird image */
 }
 
 .bird-image {
-    width: 100px;
+    width: 100px; /* Adjust size as needed */
     height: auto;
-    margin-bottom: 40px;
+    margin-bottom: 40px; /* Space between bird image and canvas */
 }
