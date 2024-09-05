@@ -3,19 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flappy Bird Game</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Flappy Bird</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1 class="title">Flappy Bird Game</h1>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="title">Flappy Bird</div>
+    <img src="https://i.postimg.cc/3Ns1dNSM/flappy-bird-removebg-preview.png" alt="Flappy Bird" class="bird-image">
+    <canvas id="gameCanvas" width="640" height="480"></canvas>
     <div id="scoreBox" class="score-box">Score: 0</div>
     <div id="livesBox" class="lives-box">Lives: ❤️❤️❤️</div>
-    <div id="gameOverBox" class="game-over-box" style="display:none;"></div>
-    <div id="restartBox" class="restart-box" style="display:none;"></div>
-    <div id="startBox" class="start-box" style="display:none;">
-        <p>Press Enter to Start</p>
-        <button onclick="startGame()">Start Game</button>
+    <div id="startBox" class="start-box">
+        <button class="start-button" onclick="startGame()">Start Game</button>
     </div>
     <script src="script.js"></script>
 </body>
