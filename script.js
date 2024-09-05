@@ -28,6 +28,7 @@ let birdY = canvas.height / 2 - birdSize / 2;
 let birdVelocity = 0;
 let pipes = [];
 let score = 0;
+let bestScore = 0; // Track best score
 let lives = initialLives;
 let gameInterval;
 
@@ -39,6 +40,7 @@ function initGame() {
     score = 0;
     lives = initialLives;
     document.getElementById('scoreBox').textContent = `Score: ${score}`;
+    document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
     document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
     if (gameInterval) clearInterval(gameInterval);
     gameInterval = setInterval(updateGame, 20);
@@ -101,20 +103,45 @@ function generatePipe() {
     pipes.push({ x: canvas.width, topHeight, bottomHeight });
 }
 
-// Handle key down events
+// Handle keydown event
 function handleKeydown(e) {
-    if (e.code === 'ArrowUp') {
+    if (e.code === 'Space') {
         birdVelocity = birdLift;
-    }
-    if (e.code === 'ArrowDown') {
-        birdVelocity = birdGravity;
     }
 }
 
 // Lose a life
 function loseLife() {
     lives--;
-    document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
     if (lives <= 0) {
         gameOver();
-    } else
+    } else {
+        document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
+    }
+}
+
+// End game
+function gameOver() {
+    clearInterval(gameInterval);
+    gameInterval = null;
+    if (score > bestScore) {
+        bestScore = score;
+        document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
+    }
+    document.removeEventListener('keydown', handleKeydown);
+    document.getElementById('gameCanvas').style.display = 'none';
+    document.getElementById('scoreBox').style.display = 'none';
+    document.getElementById('bestScoreBox').style.display = 'none';
+    document.getElementById('livesBox').style.display = 'none';
+    document.getElementById('startBox').style.display = 'block';
+}
+
+// Start game
+function startGame() {
+    document.getElementById('gameCanvas').style.display = 'block';
+    document.getElementById('scoreBox').style.display = 'block';
+    document.getElementById('bestScoreBox').style.display = 'block';
+    document.getElementById('livesBox').style.display = 'block';
+    document.getElementById('startBox').style.display = 'none';
+    initGame();
+}
