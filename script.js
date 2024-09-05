@@ -39,7 +39,9 @@ function initGame() {
     pipes = [];
     score = 0;
     lives = initialLives;
-    updateScoreAndLives();
+    document.getElementById('scoreBox').textContent = `Score: ${score}`;
+    document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
+    document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
     if (gameInterval) clearInterval(gameInterval);
     gameInterval = setInterval(updateGame, 20);
     document.addEventListener('keydown', handleKeydown);
@@ -59,7 +61,7 @@ function updateGame() {
 
     // Check for canvas bounds collision
     if (birdY < 0 || birdY + birdSize > canvas.height) {
-        loseLife();
+        gameOver();
         return;
     }
 
@@ -78,14 +80,13 @@ function updateGame() {
         if (pipe.x < 50 + birdSize && pipe.x + pipeWidth > 50 &&
             (birdY < pipe.topHeight || birdY + birdSize > canvas.height - pipe.bottomHeight)) {
             loseLife();
-            return;
         }
 
         // Remove off-screen pipes
         if (pipe.x + pipeWidth < 0) {
             pipes.splice(i, 1);
             score++;
-            updateScoreAndLives();
+            document.getElementById('scoreBox').textContent = `Score: ${score}`;
         }
     }
 
@@ -102,10 +103,13 @@ function generatePipe() {
     pipes.push({ x: canvas.width, topHeight, bottomHeight });
 }
 
-// Handle keydown event
+// Handle key down events
 function handleKeydown(e) {
-    if (e.code === 'Space') {
+    if (e.code === 'ArrowUp') {
         birdVelocity = birdLift;
+    }
+    if (e.code === 'ArrowDown') {
+        birdVelocity = birdGravity;
     }
 }
 
@@ -114,40 +118,28 @@ function loseLife() {
     lives--;
     if (lives <= 0) {
         gameOver();
-    } else {
-        updateScoreAndLives();
+        return;
     }
-}
-
-// Update score and lives display
-function updateScoreAndLives() {
-    document.getElementById('scoreBox').textContent = `Score: ${score}`;
-    document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
     document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
+    pipes = [];
 }
 
 // End game
 function gameOver() {
     clearInterval(gameInterval);
-    gameInterval = null;
-    if (score > bestScore) {
-        bestScore = score;
-        document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
-    }
     document.removeEventListener('keydown', handleKeydown);
-    document.getElementById('gameCanvas').style.display = 'none';
-    document.getElementById('scoreBox').style.display = 'none';
-    document.getElementById('bestScoreBox').style.display = 'none';
-    document.getElementById('livesBox').style.display = 'none';
+    if (score > bestScore) bestScore = score;
+    document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
     document.getElementById('startBox').style.display = 'block';
 }
 
 // Start game
 function startGame() {
-    document.getElementById('gameCanvas').style.display = 'block';
-    document.getElementById('scoreBox').style.display = 'block';
-    document.getElementById('bestScoreBox').style.display = 'block';
-    document.getElementById('livesBox').style.display = 'block';
     document.getElementById('startBox').style.display = 'none';
     initGame();
 }
+
+// Start game on page load
+window.onload = function () {
+    document.getElementById('startBox').style.display = 'block';
+};
