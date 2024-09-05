@@ -61,7 +61,7 @@ function updateGame() {
 
     // Check for canvas bounds collision
     if (birdY < 0 || birdY + birdSize > canvas.height) {
-        gameOver();
+        loseLife();
         return;
     }
 
