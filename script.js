@@ -1,5 +1,3 @@
-// script.js
-
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -10,11 +8,11 @@ const topPipeImg = new Image();
 const bottomPipeImg = new Image();
 const heartImg = new Image();
 
-backgroundImg.src = 'images/backg.jpg';
-birdImg.src = 'images/flappy-bird-removebg-preview.png';
-topPipeImg.src = 'images/flappy-bird-pipe-png-3-removebg-preview1.png';
-bottomPipeImg.src = 'images/flappy-bird-pipe-png-3-removebg-preview.png';
-heartImg.src = 'images/heart.png'; 
+backgroundImg.src = 'https://i.postimg.cc/V6zc0HCL/backg.jpg';
+birdImg.src = 'https://i.postimg.cc/3Ns1dNSM/flappy-bird-removebg-preview.png';
+topPipeImg.src = 'https://i.postimg.cc/5NCc2F7t/flappy-bird-pipe-png-3-removebg-preview1.png';
+bottomPipeImg.src = 'https://i.postimg.cc/8cfRLG9h/flappy-bird-pipe-png-3-removebg-preview.png';
+heartImg.src = 'https://i.postimg.cc/7LbTH4BJ/heart.png'; // Add heart image for lives
 
 // Game settings
 const birdSize = 40;
@@ -119,58 +117,4 @@ function loseLife() {
     document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
     if (lives <= 0) {
         gameOver();
-    } else {
-        // Reset bird position and velocity
-        birdY = canvas.height / 2 - birdSize / 2;
-        birdVelocity = 0;
-        pipes = [];
-        generatePipe();
-    }
-}
-
-// End the game
-function gameOver() {
-    clearInterval(gameInterval);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
-    ctx.drawImage(birdImg, 50, birdY, birdSize, birdSize);
-
-    // Show game over message and buttons
-    const gameOverBox = document.createElement('div');
-    gameOverBox.className = 'game-over-box';
-    gameOverBox.innerHTML = `
-        Game Over<br>
-        Final Score: ${score}<br>
-        <button onclick="restartGame()">Restart</button>
-        <button onclick="newGame()">New Game</button>
-    `;
-    document.body.appendChild(gameOverBox);
-
-    document.removeEventListener('keydown', handleKeydown);
-}
-
-// Restart the game
-function restartGame() {
-    document.querySelector('.game-over-box').remove();
-    initGame();
-}
-
-// Start a new game
-function newGame() {
-    document.querySelector('.game-over-box').remove();
-    document.getElementById('startBox').style.display = 'block';
-}
-
-// Start game
-function startGame() {
-    document.getElementById('startBox').style.display = 'none';
-    initGame();
-}
-
-// Show start button when page loads
-function showStartButton() {
-    document.getElementById('startBox').style.display = 'block';
-}
-
-// Show start button when page loads
-showStartButton();
+    } else
