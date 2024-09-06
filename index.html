@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flappy Bird</title>
+    <title><b>Flappy Bird</b></title>
     <style>
         body {
             margin: 0;
@@ -120,6 +120,20 @@
             height: auto;
             margin-bottom: 40px; /* Space between bird image and canvas */
         }
+
+        .instructions {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-top: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
     </style>
 </head>
 <body>
@@ -132,6 +146,7 @@
     <div id="startBox" class="start-box">
         <button class="start-button" onclick="startGame()">Start Game</button>
     </div>
+    <div class="Instructions"><b>Press Up & Down Arrow to Play</b></div>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -281,6 +296,7 @@
             gameOverBox.className = 'game-over-box';
             gameOverBox.innerHTML = `
                 Game Over<br>
+                Best Score: ${bestScore}<br>
                 Final Score: ${score}<br>
                 <button onclick="restartGame()">Restart</button>
                 <button onclick="newGame()">New Game</button>
