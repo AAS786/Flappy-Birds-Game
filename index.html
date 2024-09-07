@@ -52,7 +52,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             color: #000;
             background-color: rgba(255, 255, 255, 0.7);
@@ -134,22 +134,43 @@
             left: 50%;
             transform: translateX(-50%);
         }
+
+        
     </style>
 </head>
 <body>
     <div class="title">Flappy Bird</div>
     <img src="https://i.postimg.cc/3Ns1dNSM/flappy-bird-removebg-preview.png" alt="Flappy Bird" class="bird-image">
-    <canvas id="gameCanvas" width="640" height="480"></canvas>
+    <canvas id="gameCanvas" width="720" height="480"></canvas>
     <div id="scoreBox" class="score-box">Score: 0</div>
     <div id="bestScoreBox" class="score-box" style="top: 50px;">Best Score: 0</div> <!-- Best Score Box -->
     <div id="livesBox" class="lives-box">Lives: ❤️❤️❤️</div>
     <div id="startBox" class="start-box">
+      <div id="startBox" class="start-box">
         <button class="start-button" onclick="startGame()">Start Game</button>
+        <!-- <button class="difficulty-button" onclick="changeDifficulty()">Levels</button> -->
     </div>
-    <div class="Instructions"><b>Press Up & Down Arrow to Play</b></div>
+    </div>
+    <div class="instructions"><b>Press Up & Down Arrow to Play</b></div>
+    
+    <!-- Audio elements -->
+    <audio id="bgMusic" loop>
+        <source src="https://www.bensound.com/bensound-music/bensound-littleidea.mp3" type="audio/mp3">
+    </audio>
+    <!-- Added hit and point sound -->
+    <audio id="hitSound">
+        <source src="https://www.fesliyanstudios.com/play-mp3/6297" type="audio/mp3">
+    </audio>
+    <audio id="pointSound">
+        <source src="https://www.fesliyanstudios.com/play-mp3/6288" type="audio/mp3">
+    </audio>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const bgMusic = document.getElementById('bgMusic');
+        const hitSound = document.getElementById('hitSound');
+        const pointSound = document.getElementById('pointSound');
 
         // Load images
         const backgroundImg = new Image();
@@ -166,8 +187,8 @@
 
         // Game settings
         const birdSize = 40;
-        const birdGravity = 0.6;
-        const birdLift = -12;
+        const birdGravity = 0.5;
+        const birdLift = -10;
         const pipeWidth = 60;
         const pipeGap = 200;
         const pipeSpeed = 3;
@@ -196,6 +217,13 @@
             gameInterval = setInterval(updateGame, 20);
             document.addEventListener('keydown', handleKeydown);
             generatePipe();
+            bgMusic.play(); // Start background music
+        }
+
+        // Play background music
+            function playBackgroundMusic() {
+            bgMusic.play();
+            bgMusic.loop = true; // Ensure music loops continuously
         }
 
         // Update game state
@@ -236,6 +264,7 @@
                 if (pipe.x + pipeWidth < 0) {
                     pipes.splice(i, 1);
                     score++;
+                    pointSound.play(); // Play point sound
                     document.getElementById('scoreBox').textContent = `Score: ${score}`;
                 }
             }
@@ -246,27 +275,11 @@
             }
         }
 
-        // Generate new pipes
-        function generatePipe() {
-            const topHeight = Math.random() * (canvas.height - pipeGap - 50) + 20;
-            const bottomHeight = canvas.height - topHeight - pipeGap;
-            pipes.push({ x: canvas.width, topHeight, bottomHeight });
-        }
-
-        // Handle key down events
-        function handleKeydown(e) {
-            if (e.code === 'ArrowUp') {
-                birdVelocity = birdLift;
-            }
-            if (e.code === 'ArrowDown') {
-                birdVelocity = birdGravity;
-            }
-        }
-
         // Lose a life
         function loseLife() {
             lives--;
             document.getElementById('livesBox').innerHTML = `Lives: ${'❤️'.repeat(lives)}`;
+            hitSound.play(); // Play hit sound
             if (lives <= 0) {
                 gameOver();
             } else {
@@ -290,6 +303,10 @@
                 bestScore = score;
                 document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
             }
+
+            // Stop background music
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
 
             // Show game over message and buttons
             const gameOverBox = document.createElement('div');
@@ -318,22 +335,29 @@
             document.getElementById('startBox').style.display = 'block';
         }
 
-        // Start game
+        // Handle keydown events
+        function handleKeydown(e) {
+            if (e.key === 'ArrowUp') {
+                birdVelocity = birdLift;
+            }
+        }
+
+        // Generate new pipes
+        function generatePipe() {
+            const topHeight = Math.random() * (canvas.height - pipeGap - 60) + 30;
+            const bottomHeight = canvas.height - pipeGap - topHeight;
+            pipes.push({
+                x: canvas.width,
+                topHeight: topHeight,
+                bottomHeight: bottomHeight
+            });
+        }
+
+        // Start the game
         function startGame() {
             document.getElementById('startBox').style.display = 'none';
             initGame();
         }
-
-        // Show start button when page loads
-        function showStartButton() {
-            document.getElementById('startBox').style.display = 'block';
-            // Retrieve best score from localStorage
-            bestScore = localStorage.getItem('bestScore') || 0;
-            document.getElementById('bestScoreBox').textContent = `Best Score: ${bestScore}`;
-        }
-
-        // Show start button when page loads
-        showStartButton();
     </script>
 </body>
 </html>
